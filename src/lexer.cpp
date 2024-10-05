@@ -1,55 +1,30 @@
-#include "lexer.h"
+#include <lexer.hpp>
 
-char *data;
-std::vector<char> lexeme;
-
-/**
- * error - template function to display error messages
- *
- * args:
- * err - an error message
- */
-void error(std::string err) {
-    std::cerr << "error: " << err << std::endl;
+Lexer::Lexer(const std::vector<char> &src) {
+    input = src;
+    pos = 0;
 }
 
-/**
- * read_file - read in file for lexing and parsing
- *
- * args:
- * fname - input file name (taken from argv)
- */
-void read_file(std::string fname) {
-    //Check filename for appropriate extension
-    if(fname.find('.') == std::string::npos) {
-        error("file must end in .pl0");
-        exit(1);
-    }
-
-    if(fname.find(".pl0") == std::string::npos) {
-        error("file must end in .pl0");
-        exit(1);
-    }
-
-    //Open file
-    std::ifstream fp(fname, std::ios::ate | std::ios::binary);
-
-    //Check file for errors
-    if(!fp) {
-        error("file could not be opened");
-        exit(1);
-    }
-
-    auto size = fp.tellg();
-    fp.seekg(0, std::ios::beg);
-
-    if(size == 0) { error("file is empty"); }
-
-    data = new char[size];
-
-    if(!fp.read(data, size)) {
-        error("could not read file");
-    }
+char Lexer::peek() {
+    return (pos < input.size() ? input.at(pos) : '\0');
 }
 
-/* LEXER FUNCTIONS */
+char Lexer::getNextChar() {
+    return (pos < input.size() ? input.at(pos++) : '\0');
+}
+
+bool Lexer::isKeyword(const std::string &word) {
+    return keywords.find(word) != keywords.end();
+}
+
+Token Lexer::getNextToken() {
+    while(std::isspace(peek())) {
+        getNextChar();
+    }
+
+    char currChar = peek();
+
+    if(currChar == '\0') {
+        return (TokenType::EndOfFile, "");
+    }
+}

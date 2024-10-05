@@ -5,7 +5,6 @@ project(SimplePL0Compiler)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(SOURCES
-  src/lexer.cpp
   src/main.cpp
 )
 
