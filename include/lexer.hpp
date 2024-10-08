@@ -1,9 +1,12 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <cctype>
+#include <algorithm>
+#include <iomanip>
 
 enum class TokenType { Ident, Num, Keyword, Op, EndOfFile, Invalid };
 
@@ -12,30 +15,17 @@ struct Token {
     std::string value;
 };
 
-std::unordered_map<std::string, TokenType> keywords = {
-{"begin", TokenType::Keyword},
-{"end", TokenType::Keyword},
-{"if", TokenType::Keyword},
-{"then", TokenType::Keyword},
-{"while", TokenType::Keyword},
-{"do", TokenType::Keyword},
-{"const", TokenType::Keyword},
-{"var", TokenType::Keyword},
-{"procedure", TokenType::Keyword},
-{"odd", TokenType::Keyword},
-{"call", TokenType::Keyword},
-};
-
 class Lexer {
     public:
         Lexer(const std::vector<char> &src);
-        Token getNextToken();
+        Token get_next_token();
         std::vector<Token> tokenize();
+        void print_tokens(const std::vector<Token> &tokens);
 
     private:
         std::vector<char> input;
         size_t pos;
         char peek();
-        char getNextChar();
-        bool isKeyword(const std::string &word);
+        char get_next_char();
+        bool is_keyword(const std::string &word);
 };

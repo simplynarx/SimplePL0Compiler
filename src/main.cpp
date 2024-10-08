@@ -1,3 +1,5 @@
+#include <lexer.hpp>
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -57,7 +59,13 @@ int main(int argc, char **argv) {
 
    read_file(argv[1]);
 
-   for(char c : src) std::cout << c;
+   /* Lexing process */
+
+   Lexer lex(src);
+
+   std::vector<Token> tokens = lex.tokenize();
+   lex.print_tokens(tokens);
+
 
    return 0;
 }

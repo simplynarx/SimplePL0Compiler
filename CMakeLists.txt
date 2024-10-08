@@ -6,6 +6,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(SOURCES
   src/main.cpp
+  src/lexer.cpp
 )
 
 add_executable(SimplePL0Compiler ${SOURCES})
