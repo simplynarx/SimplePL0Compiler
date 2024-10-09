@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -17,14 +18,15 @@ struct Token {
 
 class Lexer {
     public:
-        Lexer(const std::vector<char> &src);
+        Lexer(const std::string &fname);
         Token get_next_token();
         std::vector<Token> tokenize();
         void print_tokens(const std::vector<Token> &tokens);
 
     private:
-        std::vector<char> input;
+        std::vector<char> src;
         size_t pos;
+        std::vector<char> read_file(std::string fname);
         char peek();
         char get_next_char();
         bool is_keyword(const std::string &word);

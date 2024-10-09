@@ -4,9 +4,57 @@ std::vector<std::string> keywords = {"begin",     "end", "if",    "then",
                                      "while",     "do",  "const", "var",
                                      "procedure", "odd", "call"};
 
-Lexer::Lexer(const std::vector<char> &src) {
-  input = src;
-  pos = 0;
+Lexer::Lexer(const std::string &fname) {
+    src = read_file(fname);
+    pos = 0;
+}
+
+/**
+ * read_file - read in file for lexing and parsing
+ *
+ * args:
+ * fname - input file name (taken from argv)
+ */
+std::vector<char> Lexer::read_file(std::string fname) {
+    std::vector<char> src;
+
+    //Check filename for appropriate extension
+    if(fname.find('.') == std::string::npos) {
+        std::cerr << "error: file must end in .pl0" << std::endl;
+        exit(1);
+    }
+
+    if(fname.find(".pl0") == std::string::npos) {
+        std::cerr << "error: file must end in .pl0" << std::endl;
+        exit(1);
+    }
+
+    //Open file, starting on the last character
+    std::ifstream fp(fname, std::ios::ate | std::ios::binary);
+
+    //Check file for errors
+    if(!fp) {
+        std::cerr << "error: file could not be opened" << std::endl;
+        exit(1);
+    }
+
+    auto size = fp.tellg();
+    fp.seekg(0, std::ios::beg);
+
+    if(size == 0) {
+        std::cerr << "error: file is empty" << std::endl;
+        exit(1);
+    }
+
+    src.resize(size);
+
+    if(!fp.read(src.data(), size)) {
+        std::cerr << "error: could not read file" << std::endl;
+    }
+
+    fp.close();
+
+    return src;
 }
 
 /**
@@ -17,7 +65,7 @@ Lexer::Lexer(const std::vector<char> &src) {
  * char - the character at current position in input stream
  */
 char Lexer::peek() {
-    return (pos < input.size() ? input.at(pos) : '\0');
+    return (pos < src.size() ? src.at(pos) : '\0');
 }
 
 /**
@@ -28,7 +76,7 @@ char Lexer::peek() {
  * char - the character at the next position in the input stream
  */
 char Lexer::get_next_char() {
-    return (pos < input.size() ? input.at(pos++) : '\0');
+    return (pos < src.size() ? src.at(pos++) : '\0');
 }
 
 /**
@@ -116,10 +164,12 @@ std::vector<Token> Lexer::tokenize() {
 
     while(true) {
         t = get_next_token();
+
         if(t.type == TokenType::EndOfFile) {
             tokens.push_back(t);
             break;
         }
+
         if(t.type == TokenType::Invalid) break;
         tokens.push_back(t);
     }
