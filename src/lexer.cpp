@@ -144,6 +144,21 @@ Token Lexer::get_next_token() {
     //checks for an operator
     if(std::ispunct(currChar)) {
         std::string op(1, get_next_char());
+
+        if(currChar == ':') {
+            if(get_next_char() == '=') return {TokenType::Op, ":="};
+        }
+
+        if(currChar == '<') {
+            if(get_next_char() == '=') return {TokenType::Op, "<="};
+            else return {TokenType::Op, "<"};
+        }
+
+        if(currChar == '>') {
+            if(get_next_char() == '=') return {TokenType::Op, ">="};
+            else return {TokenType::Op, ">"};
+        }
+
         return {TokenType::Op, op};
     }
 

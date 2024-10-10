@@ -30,12 +30,14 @@ void Parser::nextToken() {
 void Parser::expect(TokenType type, std::string value = "") {
     if(value.empty()) {
         if(currToken.type != type) {
-            throw std::runtime_error("Syntax error: unexpected token in stream");
+            throw std::runtime_error("Syntax error: unexpected token in stream: \""
+                                     + currToken.value + "\"");
         }
     }
     else {
         if(currToken.type != type || currToken.value != value) {
-            throw std::runtime_error("Syntax error: unexpected token in stream");
+            throw std::runtime_error("Syntax error: unexpected token in stream: \""
+                                     + currToken.value);
         }
     }
     std::cout << currToken.value << std::endl;
@@ -59,14 +61,14 @@ bool Parser::check(TokenType type, std::string value = "") {
 /* program = block "." ; */
 void Parser::program() {
     block();
-    expect(TokenType::Op, ".");
+    //expect(TokenType::Op, ".");
 }
 
-//TODO
 /* block = [ "const" ident "=" number {"," ident "=" number} ";"]
         [ "var" ident {"," ident} ";"]
         { "procedure" ident ";" block ";" } statement ; */
 void Parser::block() {
+    /* [ "const" ident "=" number {"," ident "=" number} ";"] */
     if(check(TokenType::Keyword, "const")) {
         std::cout << currToken.value << std::endl;
         nextToken();
@@ -74,16 +76,51 @@ void Parser::block() {
         expect(TokenType::Op, "=");
         expect(TokenType::Num);
         while(check(TokenType::Op, ",")) {
+            std::cout << currToken.value << std::endl;
+            nextToken();
             expect(TokenType::Ident);
             expect(TokenType::Op, "=");
             expect(TokenType::Num);
         }
         expect(TokenType::Op, ";");
     }
+
+    /* [ "var" ident {"," ident} ";"] */
+    if(check(TokenType::Keyword, "var")) {
+        std::cout << currToken.value << std::endl;
+        nextToken();
+        expect(TokenType::Ident);
+        while(check(TokenType::Op, ",")) {
+            std::cout << currToken.value << std::endl;
+            nextToken();
+            expect(TokenType::Ident);
+        }
+        expect(TokenType::Op, ";");
+    }
+
+    /* { "procedure" ident ";" block ";" } statement ; */
+    while(check(TokenType::Keyword, "procedure")) {
+        std::cout << currToken.value << std::endl;
+        nextToken();
+        expect(TokenType::Ident);
+        expect(TokenType::Op, ";");
+        block();
+    }
+
+    statement();
+    //TODO don't forget to uncomment after statement() is written
+    //expect(TokenType::Op, ";");
 }
 
+/* statement = [ ident ":=" expression | "call" ident
+              | "?" ident | "!" expression
+              | "begin" statement {";" statement } "end"
+              | "if" condition "then" statement
+              | "while" condition "do" statement ]; */
 void Parser::statement() {
-
+    if(check(TokenType::Ident)) {
+        //TODO
+    }
 }
 
 void Parser::condition() {
