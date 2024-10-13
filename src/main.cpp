@@ -10,8 +10,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-   /* Lexing process */
-
    Lexer lexer(argv[1]);
    Parser parser(lexer);
 

@@ -6,4 +6,4 @@ begin
     i := i + 1;
     s := s + i * i
   end
-end
+end.
