@@ -1,17 +1,19 @@
 #pragma once
 
 #include <lexer.hpp>
+#include <transpiler.hpp>
 
 #include <stdexcept>
 
 class Parser {
     public:
-        Parser(Lexer &lexer);
+        Parser(Lexer &lexer, Transpiler &transpiler);
         void parse();
 
     private:
         Lexer &lexer;
-        Token currToken;
+        Transpiler &transpiler;
+        Token curr_token;
         bool debug_toggle;
         std::string tree_pos;
 

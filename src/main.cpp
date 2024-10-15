@@ -1,5 +1,6 @@
 #include <lexer.hpp>
 #include <parser.hpp>
+#include <transpiler.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -10,8 +11,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+
    Lexer lexer(argv[1]);
-   Parser parser(lexer);
+   Transpiler transpiler;
+   Parser parser(lexer, transpiler);
 
    try {
        parser.parse();
@@ -19,10 +22,6 @@ int main(int argc, char **argv) {
    catch(const std::runtime_error &e) {
        std::cerr << e.what() << std::endl;
    }
-
-   //std::vector<Token> tokens = lexer.tokenize();
-   //lexer.print_tokens(tokens);
-
 
    return 0;
 }

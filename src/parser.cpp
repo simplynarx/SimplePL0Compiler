@@ -1,8 +1,8 @@
 #include <parser.hpp>
 
-Parser::Parser(Lexer &lexer) : lexer(lexer) {
+Parser::Parser(Lexer &lexer, Transpiler &transpiler) : lexer(lexer), transpiler(transpiler) {
     nextToken();
-    debug_toggle = true;
+    debug_toggle = false;
 }
 
 /**
@@ -16,7 +16,7 @@ void Parser::parse() {
  * nextToken - retrieves the next token from the lexer
  */
 void Parser::nextToken() {
-    currToken = lexer.get_next_token();
+    curr_token = lexer.get_next_token();
 }
 
 /**
@@ -34,15 +34,15 @@ void Parser::nextToken() {
 void Parser::expect(TokenType type, std::string value = "") {
     // if only a token type is passed
     if(value.empty()) {
-        if(currToken.type != type) {
+        if(curr_token.type != type) {
             throw std::runtime_error("Syntax error: unexpected token in stream: \""
-                                     + currToken.value + "\"");
+                                     + curr_token.value + "\"");
         }
     }
     else {
-        if(currToken.type != type || currToken.value != value) {
+        if(curr_token.type != type || curr_token.value != value) {
             throw std::runtime_error("Syntax error: unexpected token in stream: \""
-                                     + currToken.value);
+                                     + curr_token.value);
         }
     }
     debug();
@@ -59,10 +59,10 @@ void Parser::expect(TokenType type, std::string value = "") {
 bool Parser::check(TokenType type, std::string value = "") {
     // if only a token type is passed
     if(value.empty()) {
-        return currToken.type == type ? true : false;
+        return curr_token.type == type ? true : false;
     }
     else {
-        return currToken.value == value ? true : false;
+        return curr_token.value == value ? true : false;
     }
 }
 
@@ -73,7 +73,7 @@ bool Parser::check(TokenType type, std::string value = "") {
 void Parser::debug() {
     if(debug_toggle) {
         std::cout << "Parse Tree: " << tree_pos
-                  << "\tValue: " << currToken.value << std::endl;
+                  << "\tValue: " << curr_token.value << std::endl;
     }
 }
 
@@ -96,16 +96,33 @@ void Parser::block() {
     if(check(TokenType::Keyword, "const")) {
         debug();
         nextToken();
+
+        transpiler.t_const(curr_token.value);
+
         expect(TokenType::Ident);
         expect(TokenType::Op, "=");
+
+        transpiler.t_num(curr_token.value);
+
         expect(TokenType::Num);
         while(check(TokenType::Op, ",")) {
+            transpiler.t_comma();
+
             debug();
             nextToken();
+
+            transpiler.t_const_assignment(curr_token.value);
+
             expect(TokenType::Ident);
             expect(TokenType::Op, "=");
+
+            transpiler.t_num(curr_token.value);
+
             expect(TokenType::Num);
         }
+
+        transpiler.t_semicolon();
+
         expect(TokenType::Op, ";");
     }
 
@@ -113,12 +130,23 @@ void Parser::block() {
     if(check(TokenType::Keyword, "var")) {
         debug();
         nextToken();
+
+        transpiler.t_var(curr_token.value);
+
         expect(TokenType::Ident);
         while(check(TokenType::Op, ",")) {
+            transpiler.t_comma();
+
             debug();
             nextToken();
+
+            transpiler.t_ident(curr_token.value);
+
             expect(TokenType::Ident);
         }
+
+        transpiler.t_semicolon();
+
         expect(TokenType::Op, ";");
     }
 
@@ -126,6 +154,9 @@ void Parser::block() {
     while(check(TokenType::Keyword, "procedure")) {
         debug();
         nextToken();
+
+        transpiler.t_procedure(curr_token.value);
+
         expect(TokenType::Ident);
         expect(TokenType::Op, ";");
         block();
@@ -146,15 +177,25 @@ void Parser::statement() {
     /* ident ":=" expression */
     if(check(TokenType::Ident)) {
         debug();
+
+        transpiler.t_var_assignment(curr_token.value);
+
         nextToken();
         expect(TokenType::Op, ":=");
         expression();
     }
 
+    // TODO implement keyword tracker to determine when
+    // main should be created. if last keyword was "end"
+    // when either "begin" or "call" are parsed, create main
+
     /* "call" ident */
     if(check(TokenType::Keyword, "call")) {
         debug();
         nextToken();
+
+        transpiler.t_call(curr_token.value);
+
         expect(TokenType::Ident);
     }
 
@@ -162,6 +203,9 @@ void Parser::statement() {
     if(check(TokenType::Op, "?")) {
         debug();
         nextToken();
+
+        transpiler.t_input(curr_token.value);
+
         expect(TokenType::Ident);
     }
 
@@ -169,6 +213,9 @@ void Parser::statement() {
     if(check(TokenType::Op, "!")) {
         debug();
         nextToken();
+
+        transpiler.t_output(curr_token.value);
+
         expression();
     }
 
@@ -179,9 +226,15 @@ void Parser::statement() {
         statement();
         while(check(TokenType::Op, ";")) {
             debug();
+
+            transpiler.t_semicolon();
+
             nextToken();
             statement();
         }
+
+        transpiler.t_end();
+
         expect(TokenType::Keyword, "end");
     }
 
@@ -226,7 +279,7 @@ void Parser::condition() {
         expression();
         }
         else throw std::runtime_error("Syntax error: unexpected token in stream: \""
-                                     + currToken.value + "\"");
+                                     + curr_token.value + "\"");
     }
 
 }
@@ -273,6 +326,9 @@ void Parser::factor() {
     /* number */
     else if(check(TokenType::Num)) {
         debug();
+
+        transpiler.t_num(curr_token.value);
+
         nextToken();
     }
     /* "(" expression ")" */

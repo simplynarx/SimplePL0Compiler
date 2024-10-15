@@ -8,6 +8,7 @@ set(SOURCES
   src/main.cpp
   src/lexer.cpp
   src/parser.cpp
+  src/transpiler.cpp
 )
 
 add_executable(SimplePL0Compiler ${SOURCES})

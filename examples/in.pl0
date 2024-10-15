@@ -1,0 +1,9 @@
+var x;
+
+procedure test;
+const y = 5;
+begin
+    ? x;
+    ! x;
+end;
+.
