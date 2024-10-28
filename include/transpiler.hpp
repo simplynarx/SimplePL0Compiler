@@ -13,6 +13,8 @@ class Transpiler {
     private:
         std::ofstream out_file;
 
+        void t_create_main();
+
         void t_const(std::string token);
         void t_num(std::string token);
         void t_semicolon();
@@ -26,4 +28,5 @@ class Transpiler {
         void t_call(std::string token);
         void t_input(std::string token);
         void t_output(std::string token);
+        void t_open_if();
 };

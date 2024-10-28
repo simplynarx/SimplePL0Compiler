@@ -14,6 +14,7 @@ class Parser {
         Lexer &lexer;
         Transpiler &transpiler;
         Token curr_token;
+        std::string curr_keyword;
         bool debug_toggle;
         std::string tree_pos;
 

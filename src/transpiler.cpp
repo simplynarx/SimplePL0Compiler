@@ -13,11 +13,14 @@ Transpiler::Transpiler() {
 }
 
 Transpiler::~Transpiler() {
-    out_file << "int main(void) {\n\n";
     out_file << "printf(\"\\n\");\n";
     out_file << "return 0;";
     out_file << "\n}";
     out_file.close();
+}
+
+void Transpiler::t_create_main() {
+    out_file << "int main(void) {\n\n";
 }
 
 void Transpiler::t_const(std::string token) {
@@ -70,4 +73,8 @@ void Transpiler::t_input(std::string token) {
 
 void Transpiler::t_output(std::string token) {
     out_file << "printf(\"%li\", " << token << ")";
+}
+
+void Transpiler::t_open_if() {
+    out_file << "if(";
 }

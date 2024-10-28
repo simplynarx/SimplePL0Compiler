@@ -94,6 +94,7 @@ void Parser::block() {
 
     /* [ "const" ident "=" number {"," ident "=" number} ";"] */
     if(check(TokenType::Keyword, "const")) {
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
 
@@ -128,6 +129,7 @@ void Parser::block() {
 
     /* [ "var" ident {"," ident} ";"] */
     if(check(TokenType::Keyword, "var")) {
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
 
@@ -152,6 +154,7 @@ void Parser::block() {
 
     /* { "procedure" ident ";" block ";" } statement ; */
     while(check(TokenType::Keyword, "procedure")) {
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
 
@@ -191,6 +194,10 @@ void Parser::statement() {
 
     /* "call" ident */
     if(check(TokenType::Keyword, "call")) {
+        if(curr_keyword == "end") {
+            transpiler.t_create_main();
+        }
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
 
@@ -221,6 +228,10 @@ void Parser::statement() {
 
     /* "begin" statement {";" statement} "end" */
     if(check(TokenType::Keyword, "begin")) {
+        if(curr_keyword == "end") {
+            transpiler.t_create_main();
+        }
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
         statement();
@@ -236,23 +247,32 @@ void Parser::statement() {
         transpiler.t_end();
 
         expect(TokenType::Keyword, "end");
+        curr_keyword = curr_token.value;
     }
 
     /* "if" condition "then" statement */
     if(check(TokenType::Keyword, "if")) {
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
+
+        //TODO close_if for closing if statement
+        transpiler.t_open_if();
+
         condition();
         expect(TokenType::Keyword, "then");
+        curr_keyword = curr_token.value;
         statement();
     }
 
     /* "while" condition "do" statement */
     if(check(TokenType::Keyword, "while")) {
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
         condition();
         expect(TokenType::Keyword, "do");
+        curr_keyword = curr_token.value;
         statement();
     }
 }
@@ -264,6 +284,7 @@ void Parser::condition() {
 
     /* "odd" expression */
     if(check(TokenType::Keyword, "odd")) {
+        curr_keyword = curr_token.value;
         debug();
         nextToken();
         expression();
